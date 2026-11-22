@@ -13,18 +13,23 @@ const prisma = new PrismaClient();
 const SAMPLE = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample";
 
 async function main() {
-  const phone = normalizePhone(process.env.ADMIN_PHONE ?? "");
+  const rawPhone = process.env.ADMIN_PHONE ?? "";
   const password = process.env.ADMIN_PASSWORD ?? "";
-  if (!phone || password.length < 6) throw new Error("Définissez ADMIN_PHONE et ADMIN_PASSWORD (6+ caractères) dans .env");
+  if (!rawPhone || password.length < 6) {
+    console.warn("⚠ ADMIN_PHONE / ADMIN_PASSWORD (6+ caractères) non définis : compte admin non créé.");
+  } else {
+    const phone = normalizePhone(rawPhone);
+    // Si le compte existe déjà, on ne touche pas à son mot de passe.
+    await prisma.user.upsert({
+      where: { phone },
+      update: { isAdmin: true },
+      create: { phone, name: process.env.ADMIN_NAME || "Admin", isAdmin: true, passwordHash: await bcrypt.hash(password, 10) },
+    });
+    console.log(`✓ Compte admin : ${phone}`);
+  }
 
-  await prisma.user.upsert({
-    where: { phone },
-    update: { isAdmin: true },
-    create: { phone, name: process.env.ADMIN_NAME || "Admin", isAdmin: true, passwordHash: await bcrypt.hash(password, 10) },
-  });
-  console.log(`✓ Compte admin : ${phone}`);
-
-  if ((await prisma.series.count()) === 0) {
+  // Série de démonstration : seulement si SEED_DEMO="true" et que la base est vide
+  if (process.env.SEED_DEMO === "true" && (await prisma.series.count()) === 0) {
     await prisma.series.create({
       data: {
         slug: "l-heritage-de-mama-awa",

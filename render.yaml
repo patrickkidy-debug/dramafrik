@@ -1,0 +1,50 @@
+# Configuration Render (render.com) : Dashboard → New → Blueprint → choisir ce dépôt.
+# Les valeurs marquées "sync: false" vous seront demandées à la création.
+services:
+  - type: web
+    name: dramafrik
+    runtime: node
+    plan: free
+    region: frankfurt # même région que la base Neon (AWS Europe Central / Frankfurt)
+    buildCommand: npm ci --include=dev && npm run render-build
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # ── Base de données Neon ──
+      - key: DATABASE_URL # adresse "pooled" (contient -pooler)
+        sync: false
+      - key: DIRECT_URL # adresse directe (sans -pooler)
+        sync: false
+      # ── Site ──
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: DEFAULT_COUNTRY_CODE
+        value: "221"
+      - key: CURRENCY
+        value: XOF
+      - key: MIN_PRICE_XOF
+        value: "300"
+      - key: SEED_DEMO
+        value: "false"
+      # ── Compte admin (créé au premier déploiement) ──
+      - key: ADMIN_NAME
+        value: Admin
+      - key: ADMIN_PHONE
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      # ── Paiement : "simulation" pour tester, "live" pour encaisser ──
+      - key: PAYMENT_MODE
+        value: simulation
+      - key: GENIUSPAY_PUBLIC_KEY
+        sync: false
+      - key: GENIUSPAY_SECRET_KEY
+        sync: false
+      # ── Vidéos Bunny Stream ──
+      - key: BUNNY_LIBRARY_ID
+        sync: false
+      - key: BUNNY_TOKEN_KEY
+        sync: false

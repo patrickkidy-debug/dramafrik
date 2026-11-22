@@ -43,5 +43,7 @@ export function providerById(id: string) {
 }
 
 export function appUrl() {
-  return (process.env.APP_URL ?? "http://localhost:3000").replace(/\/+$/, "");
+  // Sur Render, RENDER_EXTERNAL_URL est fourni automatiquement (https://xxx.onrender.com)
+  const url = process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || "http://localhost:3000";
+  return url.replace(/\/+$/, "");
 }

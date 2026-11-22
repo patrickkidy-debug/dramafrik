@@ -6,8 +6,9 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "setup": "prisma db push && tsx prisma/seed.ts",
-    "db:push": "prisma db push",
+    "setup": "prisma migrate deploy && tsx prisma/seed.ts",
+    "render-build": "prisma migrate deploy && prisma generate && next build && tsx prisma/seed.ts",
+    "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio"
   },
@@ -31,5 +32,8 @@
   },
   "overrides": {
     "postcss": "^8.5.33"
+  },
+  "engines": {
+    "node": ">=20.9"
   }
 }

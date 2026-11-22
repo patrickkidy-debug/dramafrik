@@ -2,16 +2,9 @@
 
 Site de vente de séries drama africaines. Les premiers épisodes sont gratuits, la série complète se paie dès 300 FCFA avec **Wave**, **Orange Money**, **MTN**, **Moov**, **Free Money** ou **carte bancaire**.
 
-## Lancer le site sur votre ordinateur
+Hébergement : site sur **Render**, base de données sur **Neon** (voir « Mettre le site en ligne » plus bas).
 
-```bash
-npm install
-npm run setup     # crée la base de données, le compte admin et une série de démonstration
-npm run dev       # ouvre http://localhost:3000
-```
-
-Le compte admin (numéro + mot de passe) est dans le fichier `.env` (`ADMIN_PHONE`, `ADMIN_PASSWORD`).
-Une fois connecté, cliquez sur **Admin** en haut à droite.
+Une fois connecté avec le compte admin (`ADMIN_PHONE`, `ADMIN_PASSWORD`), cliquez sur **Admin** en haut à droite.
 
 Au départ, le site est en **mode test** (`PAYMENT_MODE="simulation"`) : le bouton « Payer » simule un paiement sans débiter d'argent.
 
@@ -57,15 +50,51 @@ Seuls les moyens de paiement dont les clés sont remplies s'affichent. Vous pouv
 
 Bunny adapte automatiquement la qualité à la connexion du spectateur (3G, 4G, wifi).
 
-## Mettre le site en ligne
+## Mettre le site en ligne (Render + Neon, gratuit)
 
-Il faut un hébergeur Node.js avec un disque permanent (la base SQLite y est stockée), par exemple Railway, Render ou un petit serveur VPS.
+Le site tourne sur **Render**, et la base de données (clients, achats, séries) est chez **Neon**.
+
+### 1. Neon : la base de données
+
+1. Créez un compte sur [neon.com](https://neon.com) (« Sign up with GitHub »).
+2. Créez un projet nommé `dramafrik`, région **AWS Europe Central (Frankfurt)**.
+3. Cliquez sur **Connect**. Gardez deux adresses :
+   - avec **Connection pooling activé**, l'adresse contient `-pooler`. Ajoutez `&pgbouncer=true` à la fin : c'est votre **`DATABASE_URL`** ;
+   - avec **Connection pooling désactivé**, l'adresse n'a pas de `-pooler` : c'est votre **`DIRECT_URL`**.
+
+### 2. Render : le site
+
+1. Créez un compte sur [render.com](https://render.com) (« Sign up with GitHub »).
+2. Cliquez sur **New → Blueprint**, choisissez le dépôt `dramafrik`, puis **Apply**. Render lit `render.yaml` tout seul.
+3. Render vous demande les valeurs manquantes :
+   - `DATABASE_URL` et `DIRECT_URL` : les deux adresses Neon ;
+   - `ADMIN_PHONE` et `ADMIN_PASSWORD` : votre compte admin sur le site en ligne. Choisissez un mot de passe solide ;
+   - les autres (GeniusPay, Bunny) peuvent rester vides pour l'instant.
+4. Attendez la fin du déploiement (3 à 5 minutes). Votre site est en ligne sur `https://dramafrik.onrender.com` (ou une adresse proche).
+
+À chaque envoi de code sur GitHub (`main`), Render met le site à jour automatiquement.
+
+### 3. Empêcher le site de s'endormir
+
+Sur l'offre gratuite, Render endort le site après 15 minutes sans visite, et la page suivante met environ une minute à s'afficher. Pour l'éviter :
+
+1. Créez un compte gratuit sur [uptimerobot.com](https://uptimerobot.com).
+2. Ajoutez un **HTTP(s) monitor** sur l'adresse de votre site, toutes les **5 minutes**.
+
+### 4. Encaisser
+
+Dans Render → votre service → **Environment** :
+- mettez vos clés `GENIUSPAY_PUBLIC_KEY` et `GENIUSPAY_SECRET_KEY` ;
+- passez `PAYMENT_MODE` à `live`.
+
+Puis, dans GeniusPay → **Webhooks**, ajoutez `https://VOTRE-SITE.onrender.com/api/webhooks/geniuspay`.
+
+## Travailler sur le site en local
+
+Le site local a besoin d'une base PostgreSQL. Le plus simple est de créer dans Neon une **branche** `dev` (Neon → Branches → New branch), pour ne pas mélanger vos tests avec les vrais clients. Mettez ses deux adresses dans `.env`, puis :
 
 ```bash
 npm install
-npm run build
-npm run setup
-npm start
+npm run setup     # crée les tables, le compte admin et la série de démonstration
+npm run dev       # http://localhost:3000
 ```
-
-N'oubliez pas de mettre `APP_URL` à l'adresse https de votre site. Wave et CinetPay refusent les adresses `localhost`.
