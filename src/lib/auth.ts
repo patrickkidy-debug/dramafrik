@@ -2,17 +2,30 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
 import { cache } from "react";
+import { createHash } from "crypto";
 import { prisma } from "./db";
 
 const COOKIE = "df_session";
 const MAX_AGE = 60 * 60 * 24 * 60; // 60 jours
 
+let warned = false;
+
+/**
+ * Clé qui signe les sessions. AUTH_SECRET si défini ; sinon une clé dérivée de
+ * DATABASE_URL (secrète, stable, connue du serveur seulement), pour que le site
+ * fonctionne même si AUTH_SECRET a été oublié chez l'hébergeur.
+ */
 function secretKey() {
   const s = process.env.AUTH_SECRET;
-  if (!s || s.length < 32) {
-    throw new Error("AUTH_SECRET manquant ou trop court (32 caractères minimum) dans le fichier .env");
+  if (s && s.length >= 32) return new TextEncoder().encode(s);
+
+  const db = process.env.DATABASE_URL;
+  if (!db) throw new Error("AUTH_SECRET (32 caractères minimum) ou DATABASE_URL doit être défini");
+  if (!warned) {
+    console.warn("[auth] AUTH_SECRET absent : clé de session dérivée de DATABASE_URL.");
+    warned = true;
   }
-  return new TextEncoder().encode(s);
+  return new Uint8Array(createHash("sha256").update(`dramafrik-session:${db}`).digest());
 }
 
 export async function createSession(userId: string) {
