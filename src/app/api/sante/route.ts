@@ -26,5 +26,13 @@ export function GET() {
       secret_webhook: process.env.GENIUSPAY_WEBHOOK_SECRET ? "présent" : "absent",
     },
     version: (process.env.RENDER_GIT_COMMIT ?? "locale").slice(0, 7),
+    // Quel service Render sert ce site (utile si plusieurs services existent)
+    service_render: process.env.RENDER_SERVICE_NAME ?? "?",
+    // Noms (jamais les valeurs) des variables de config reçues, entre guillemets pour voir les espaces cachés
+    noms_variables: Object.keys(process.env)
+      .filter((k) => !/^(npm_|RENDER_|PATH|HOME|HOSTNAME|PWD|SHLVL|TERM|NODE_OPTIONS|_|LANG|PORT|SHELL|USER)/.test(k))
+      .filter((k) => k === k.toUpperCase() || /\s/.test(k))
+      .sort()
+      .map((k) => JSON.stringify(k)),
   });
 }
