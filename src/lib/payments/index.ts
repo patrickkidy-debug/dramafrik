@@ -20,8 +20,13 @@ export const simulation: PaymentProvider = {
 
 const ALL: PaymentProvider[] = [geniuspay, wave, cinetpay, simulation];
 
+/** Valeur de PAYMENT_MODE nettoyée : tolère majuscules, espaces et guillemets (« Live », " live ", "\"live\""). */
+export function paymentMode() {
+  return (process.env.PAYMENT_MODE ?? "").trim().replace(/^["']|["']$/g, "").trim().toLowerCase();
+}
+
 export function isSimulation() {
-  return process.env.PAYMENT_MODE !== "live";
+  return paymentMode() !== "live";
 }
 
 /** Les moyens de paiement proposés aux clients, selon les clés présentes dans .env */
