@@ -25,7 +25,7 @@ Au départ, le site est en **mode test** (`PAYMENT_MODE="simulation"`) : le bout
    PAYMENT_MODE="live"
    ```
    Commencez avec les clés **sandbox** (paiements de test chez GeniusPay). Remplacez-les par les clés **live** (`pk_live_…`, `sk_live_…`) pour encaisser pour de vrai.
-2. Une fois le site en ligne, dans **Webhooks**, ajoutez l'adresse `https://VOTRE-SITE/api/webhooks/geniuspay` avec les événements `payment.success`, `payment.failed` et `payment.expired`.
+2. Une fois le site en ligne, dans **Webhooks**, ajoutez l'adresse `https://VOTRE-SITE/api/webhooks/geniuspay` avec les événements `payment.success`, `payment.failed` et `payment.expired`. Copiez le secret affiché (`whsec_…`) dans `GENIUSPAY_WEBHOOK_SECRET`. Après un premier vrai paiement, si les journaux affichent « signature valide », ajoutez `GENIUSPAY_WEBHOOK_STRICT="true"` pour refuser les messages mal signés.
 3. Redémarrez le site.
 
 ### Autres prestataires
