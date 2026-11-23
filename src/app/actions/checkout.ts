@@ -15,6 +15,10 @@ export async function startCheckout(formData: FormData) {
   if (!series || !series.published) redirect("/");
   const seriesPage = `/serie/${series.slug}`;
 
+  // Rien à vendre tant qu'aucun épisode payant n'est publié
+  const paidEpisodes = await prisma.episode.count({ where: { seriesId: series.id, number: { gt: series.freeEpisodes } } });
+  if (paidEpisodes === 0) redirect(seriesPage);
+
   const user = await getCurrentUser();
   if (!user) redirect(`/inscription?suite=${encodeURIComponent(seriesPage)}`);
   if (await ownsSeries(user, series.id)) redirect(seriesPage);

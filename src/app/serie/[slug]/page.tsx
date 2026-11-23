@@ -32,6 +32,8 @@ export default async function SeriesPage({ params, searchParams }: Props) {
 
   const owned = await ownsSeries(user, series.id);
   const first = series.episodes[0];
+  // Tant que tous les épisodes publiés sont gratuits, il n'y a rien à vendre.
+  const hasPaidEpisodes = series.episodes.some((e) => !isFreeEpisode(e.number, series.freeEpisodes));
 
   return (
     <div className="grid gap-8 md:grid-cols-[280px_1fr]">
@@ -62,7 +64,17 @@ export default async function SeriesPage({ params, searchParams }: Props) {
                   ▶ Regarder l&apos;épisode 1 gratuitement
                 </Link>
               )}
-              <BuyBox seriesId={series.id} priceXof={series.priceXof} episodeCount={series.episodes.length} loggedIn={!!user} />
+              {hasPaidEpisodes ? (
+                <BuyBox seriesId={series.id} priceXof={series.priceXof} episodeCount={series.episodes.length} loggedIn={!!user} />
+              ) : (
+                <div className="rounded-2xl border border-line bg-panel p-5">
+                  <p className="font-semibold">Les prochains épisodes arrivent bientôt</p>
+                  <p className="mt-1 text-sm text-muted">
+                    Regardez gratuitement ce qui est déjà sorti. La série complète sera ensuite disponible pour{" "}
+                    <span className="text-gold">{series.priceXof.toLocaleString("fr-FR")} FCFA</span>.
+                  </p>
+                </div>
+              )}
             </>
           )}
         </div>

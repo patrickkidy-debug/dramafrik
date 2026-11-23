@@ -6,3 +6,6 @@ out
 next-env.d.ts
 prisma/*.db
 prisma/*.db-journal
+
+# Fichiers de production (scénarios, images, vidéos) : hors du dépôt du site
+production/
