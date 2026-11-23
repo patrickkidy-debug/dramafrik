@@ -76,8 +76,8 @@ export default async function AdminSeriesPage({ params, searchParams }: Props) {
             <input id="videoId" name="videoId" placeholder="ex. 3f2a…-…" className={input} />
           </div>
           <div className="sm:col-span-3">
-            <label className={label} htmlFor="videoUrl">ou lien direct .mp4</label>
-            <input id="videoUrl" name="videoUrl" type="url" placeholder="https://…" className={input} />
+            <label className={label} htmlFor="videoUrl">ou lien .mp4 (ou media:serie/episode.mp4 = protégé)</label>
+            <input id="videoUrl" name="videoUrl" placeholder="https://… ou media:…" className={input} />
           </div>
           <div className="sm:col-span-1">
             <label className={label} htmlFor="minutes">Min</label>

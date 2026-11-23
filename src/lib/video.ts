@@ -7,7 +7,12 @@ export type Playback = { kind: "iframe"; src: string } | { kind: "video"; src: s
  * Quelqu'un qui copie le lien ne peut donc pas le partager durablement.
  * Bunny adapte aussi la qualité à la connexion (utile en 3G).
  */
-export function playbackFor(ep: { videoId: string; videoUrl: string }): Playback {
+/** Préfixe des vidéos stockées dans le dossier privé `media/` (servies seulement aux ayants droit). */
+export const MEDIA_PREFIX = "media:";
+
+export function playbackFor(ep: { id: string; videoId: string; videoUrl: string }): Playback {
+  if (ep.videoUrl.startsWith(MEDIA_PREFIX)) return { kind: "video", src: `/api/video/${ep.id}` };
+
   const lib = process.env.BUNNY_LIBRARY_ID;
   if (ep.videoId && lib) {
     const url = new URL(`https://iframe.mediadelivery.net/embed/${lib}/${ep.videoId}`);

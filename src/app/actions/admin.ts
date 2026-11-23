@@ -90,7 +90,9 @@ export async function addEpisode(fd: FormData) {
   if (!(number >= 1)) fail(page, "Numéro d'épisode invalide.");
   if (!title) fail(page, "Le titre de l'épisode est obligatoire.");
   if (!videoId && !videoUrl) fail(page, "Indiquez l'ID Bunny de la vidéo ou un lien vidéo.");
-  if (videoUrl && !/^https?:\/\//.test(videoUrl)) fail(page, "Le lien vidéo doit commencer par http(s)://");
+  if (videoUrl && !/^https?:\/\//.test(videoUrl) && !videoUrl.startsWith("media:")) {
+    fail(page, "Le lien vidéo doit commencer par http(s):// (ou media: pour une vidéo protégée du dossier media/)");
+  }
 
   try {
     await prisma.episode.create({
